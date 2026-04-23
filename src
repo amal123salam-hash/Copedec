@@ -1,0 +1,384 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,900;1,400&family=Space+Grotesk:wght@500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-label: "Space Grotesk", ui-monospace, monospace;
+
+  --color-primary: #001e40;
+  --color-primary-container: #003366;
+  --color-secondary: #006781;
+  --color-secondary-container: #87ddff;
+  --color-tertiary: #C8A84B;
+  --color-tertiary-container: #ffe08c;
+  
+  --color-background: #f9f9ff;
+  --color-surface: #f9f9ff;
+  --color-on-surface: #191c21;
+  --color-surface-container: #ededf4;
+  --color-surface-container-low: #f3f3fa;
+  --color-surface-container-high: #e7e8ef;
+  --color-surface-container-highest: #e1e2e9;
+  --color-on-surface-variant: #43474f;
+  --color-outline: #737780;
+  --color-outline-variant: #c3c6d1;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-on-surface font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display tracking-tight;
+  }
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.glass-effect {
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.ambient-shadow {
+  box-shadow: 0 32px 32px -4px rgba(0, 30, 64, 0.08);
+}
+
+import {StrictMode} from 'react';
+import {createRoot} from 'react-dom/client';
+import App from './App.tsx';
+import './index.css';
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <App />
+  </StrictMode>,
+);
+
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+export interface Speaker {
+  id: string;
+  name: string;
+  role: string;
+  institution: string;
+  image: string;
+  isKeynote?: boolean;
+}
+
+export interface TimelineItem {
+  id: string;
+  number: string;
+  title: string;
+  date: string;
+  description: string;
+  status: 'upcoming' | 'closed' | 'open';
+}
+
+export interface Session {
+  id: string;
+  time: string;
+  endTime: string;
+  type: 'Keynote' | 'Technical' | 'Workshop' | 'Social';
+  category?: string;
+  location: string;
+  title: string;
+  speaker: string;
+  speakerImage?: string;
+}
+
+export interface Paper {
+  id: string;
+  displayId: string;
+  track: string;
+  title: string;
+  authors: string;
+  abstract: string;
+  country: string;
+  date: string;
+  isBookmarked?: boolean;
+}
+
+export interface SponsorshipTier {
+  id: string;
+  name: string;
+  price: string;
+  icon: string;
+  features: string[];
+  color: string;
+}
+
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { AnimatePresence, motion } from 'motion/react';
+
+import { Header, BottomNav } from './components/Navigation';
+import HomeView from './views/Home';
+import InformationView from './views/Information';
+import AboutView from './views/About';
+import ScheduleView from './views/Schedule';
+import PapersView from './views/Papers';
+
+function AnimatedRoutes() {
+  const location = useLocation();
+
+  return (
+    <AnimatePresence mode="wait">
+      <Routes location={location} key={location.pathname}>
+        <Route path="/" element={<PageWrapper><HomeView /></PageWrapper>} />
+        <Route path="/info" element={<PageWrapper><InformationView /></PageWrapper>} />
+        <Route path="/about" element={<PageWrapper><AboutView /></PageWrapper>} />
+        <Route path="/schedule" element={<PageWrapper><ScheduleView /></PageWrapper>} />
+        <Route path="/papers" element={<PageWrapper><PapersView /></PageWrapper>} />
+        {/* Redirect unknown routes to Home */}
+        <Route path="*" element={<PageWrapper><HomeView /></PageWrapper>} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+function PageWrapper({ children }: { children: React.ReactNode }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -10 }}
+      transition={{ duration: 0.3, ease: 'easeOut' }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+export default function App() {
+  return (
+    <Router>
+      <div className="min-h-screen bg-background pb-16 md:pb-0">
+        <Header />
+        <AnimatedRoutes />
+        <BottomNav />
+        
+        {/* Desktop Footer Placeholder */}
+        <footer className="hidden md:block bg-slate-900 text-white py-20 mt-20">
+          <div className="max-w-screen-xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div>
+              <h4 className="text-2xl font-black mb-6 tracking-tighter">PIANC-COPEDEC XI</h4>
+              <p className="text-blue-200/60 text-sm leading-relaxed max-w-sm">
+                The premier global exchange for maritime infrastructure innovation and coastal engineering excellence.
+              </p>
+            </div>
+            <div className="flex flex-col gap-4">
+              <h5 className="font-bold text-tertiary uppercase tracking-widest text-xs">Quick Links</h5>
+              <a href="#" className="text-sm hover:text-tertiary transition-colors">Registration</a>
+              <a href="#" className="text-sm hover:text-tertiary transition-colors">Venue & Travel</a>
+              <a href="#" className="text-sm hover:text-tertiary transition-colors">Call for Papers</a>
+            </div>
+            <div>
+              <h5 className="font-bold text-tertiary uppercase tracking-widest text-xs mb-4">Newsletter</h5>
+              <p className="text-sm text-blue-200/60 mb-6 font-medium">Get the latest updates from the organizing committee.</p>
+              <div className="flex gap-2">
+                <input type="email" placeholder="email@institution.edu" className="bg-white/5 border border-white/10 rounded-full px-6 py-3 text-sm flex-1" />
+                <button className="bg-tertiary text-primary font-bold px-6 py-3 rounded-full text-sm">Join</button>
+              </div>
+            </div>
+          </div>
+          <div className="max-w-screen-xl mx-auto px-6 mt-20 pt-10 border-t border-white/5 text-[10px] uppercase font-black tracking-widest text-blue-100/30">
+            © 2027 PIANC-COPEDEC • Indian Institute of Technology Madras
+          </div>
+        </footer>
+      </div>
+    </Router>
+  );
+}
+
+import { Speaker, TimelineItem, Session, Paper, SponsorshipTier } from './types';
+
+export const SPEAKERS: Speaker[] = [
+  {
+    id: 's1',
+    name: 'Prof. Arjan Van der Velde',
+    role: 'Chair of Maritime Infrastructure',
+    institution: 'Delft University of Technology, Netherlands',
+    image: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400',
+    isKeynote: true
+  },
+  {
+    id: 's2',
+    name: 'Dr. Elena Rodriguez',
+    role: 'Director of Coastal Resilience',
+    institution: 'UN-Oceans & Coasts, Spain',
+    image: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=400',
+    isKeynote: true
+  },
+  {
+    id: 's3',
+    name: 'Prof. T. Rajasekar',
+    role: 'Head of Ocean Engineering',
+    institution: 'IIT Madras, India',
+    image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400',
+    isKeynote: true
+  }
+];
+
+export const TIMELINE: TimelineItem[] = [
+  {
+    id: 't1',
+    number: '01',
+    title: 'Abstract Submission',
+    date: '15 March 2026',
+    description: 'Last date to submit 300-word abstracts for technical sessions.',
+    status: 'closed'
+  },
+  {
+    id: 't2',
+    number: '02',
+    title: 'Paper Notification',
+    date: '30 June 2026',
+    description: 'Notification of acceptance for oral and poster presentations.',
+    status: 'upcoming'
+  },
+  {
+    id: 't3',
+    number: '03',
+    title: 'Early Bird Registration',
+    date: '15 October 2026',
+    description: 'Deadline for discounted registration rates for early birds.',
+    status: 'upcoming'
+  },
+  {
+    id: 't4',
+    number: '04',
+    title: 'Full Paper Submission',
+    date: '30 November 2026',
+    description: 'Final submission of camera-ready manuscripts for proceedings.',
+    status: 'upcoming'
+  }
+];
+
+export const SPONSORSHIP_TIERS: SponsorshipTier[] = [
+  {
+    id: 'diamond',
+    name: 'Diamond',
+    price: 'USD 25,000',
+    icon: 'Gem',
+    features: ['Premium Exhibition Booth', 'Keynote Speaking Slot'],
+    color: '#C8A84B'
+  },
+  {
+    id: 'platinum',
+    name: 'Platinum',
+    price: 'USD 15,000',
+    icon: 'Award',
+    features: ['Prime Branding Space', 'Full Session Sponsorship'],
+    color: '#E5E4E2'
+  },
+  {
+    id: 'gold',
+    name: 'Gold',
+    price: 'USD 10,000',
+    icon: 'Trophy',
+    features: ['Exhibition Presence', 'Logo in Proceedings'],
+    color: '#FFD700'
+  },
+  {
+    id: 'silver',
+    name: 'Silver',
+    price: 'USD 5,000',
+    icon: 'Star',
+    features: ['Program Listing', 'Networking Access'],
+    color: '#C0C0C0'
+  }
+];
+
+export const SESSIONS: Session[] = [
+  {
+    id: 'sess1',
+    time: '09:00',
+    endTime: '10:30 AM',
+    type: 'Keynote',
+    location: 'Main Auditorium',
+    title: 'Climate Resilient Coastal Infrastructure: A Global Perspective',
+    speaker: 'Prof. Robert Van Der Meer, TU Delft',
+    speakerImage: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200'
+  },
+  {
+    id: 'sess2',
+    time: '10:45',
+    endTime: '12:15 PM',
+    type: 'Technical',
+    category: 'Technical Session A',
+    location: 'Seminar Hall 1',
+    title: 'Wave-Structure Interaction in Deep Water Ports',
+    speaker: 'Dr. Ananya Sharma (Chair)',
+    speakerImage: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&q=80&w=200'
+  },
+  {
+    id: 'sess3',
+    time: '02:00',
+    endTime: '04:00 PM',
+    type: 'Workshop',
+    location: 'Tech Lab 3',
+    title: 'Advanced Computational Fluid Dynamics for Coastal Engineering',
+    speaker: 'Lead: Mike Richards, HydroSim Corp',
+    speakerImage: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&q=80&w=200'
+  },
+  {
+    id: 'sess4',
+    time: '06:00',
+    endTime: '08:00 PM',
+    type: 'Social',
+    location: 'Beachfront Terrace',
+    title: 'Welcome Gala Dinner & Networking Event',
+    speaker: 'All Delegates'
+  }
+];
+
+export const PAPERS: Paper[] = [
+  {
+    id: 'p1',
+    displayId: 'PC-24-082',
+    track: 'Coastal Engineering',
+    title: 'Numerical Modeling of Wave Overtopping under Extreme Storm Conditions',
+    authors: 'Dr. Ananya Sharma, Prof. Hans De Vries, et al.',
+    abstract: 'This paper presents a comprehensive numerical study on wave overtopping discharge at vertical breakwaters during extreme monsoon events. Utilizing advanced OpenFOAM simulations, we analyze the impact of changing seabed bathymetry and sea-level rise...',
+    country: 'INDIA',
+    date: 'OCT 12'
+  },
+  {
+    id: 'p2',
+    displayId: 'PC-24-115',
+    track: 'Port Infrastructure',
+    title: 'Digital Twin Implementation for Smart Container Terminals: A Case Study',
+    authors: 'Takumi Sato, Yukihiro Tanaka',
+    abstract: 'The integration of IoT sensors and real-time data analytics has enabled the creation of high-fidelity digital twins for port operations. This research explores how Japanese ports are utilizing these models...',
+    country: 'JAPAN',
+    date: 'OCT 13'
+  },
+  {
+    id: 'p3',
+    displayId: 'PC-24-204',
+    track: 'Climate Adaptation',
+    title: 'Hybrid Nature-Based Solutions for Coastal Protection in Low-Lying Delta Regions',
+    authors: 'Dr. Elena Moretti, Robert Sterling',
+    abstract: 'This study investigates the synergy between mangrove restoration and traditional engineering structures. Results indicate that hybrid systems significantly increase wave energy dissipation...',
+    country: 'AUSTRALIA',
+    date: 'OCT 14'
+  }
+];
